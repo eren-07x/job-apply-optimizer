@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Job Apply Optimizer",
+  "version": "1.0",
+  "description": "Tailor your resume and generate cover letters using AI",
+
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+
+  "host_permissions": [
+  "https://*.supabase.co/*"
+],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/icon.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.linkedin.com/jobs/*",
+        "https://www.indeed.com/*",
+        "https://www.naukri.com/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  }
+}

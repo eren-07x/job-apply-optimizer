@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Job Apply Optimizer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 420px;
+      min-height: 300px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      background: #ffffff;
+      color: #1a1a1a;
+    }
+    .header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-title { font-size: 14px; font-weight: 600; }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .header-badge {
+      font-size: 10px; background: #e8f5e9; color: #2e7d32;
+      padding: 2px 8px; border-radius: 10px; font-weight: 500;
+    }
+    .user-chip {
+      font-size: 11px; color: #888; cursor: pointer;
+      padding: 2px 8px; border: 1px solid #eee; border-radius: 10px;
+    }
+    .user-chip:hover { background: #f5f5f5; }
+    .tabs { display: flex; border-bottom: 1px solid #f0f0f0; }
+    .tab {
+      flex: 1; padding: 9px 0; text-align: center; font-size: 12px;
+      font-weight: 500; color: #888; cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all 0.15s;
+    }
+    .tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+    .content { padding: 14px 16px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── Auth screen ── */
+    .auth-wrap {
+      padding: 24px 20px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .auth-title { font-size: 16px; font-weight: 600; text-align: center; }
+    .auth-sub { font-size: 12px; color: #888; text-align: center; line-height: 1.5; }
+    .auth-toggle {
+      font-size: 12px; text-align: center; color: #888;
+    }
+    .auth-toggle span { color: #1a1a1a; cursor: pointer; font-weight: 500; text-decoration: underline; }
+    .usage-note {
+      background: #f8f8f8; border-radius: 8px;
+      padding: 10px 14px; font-size: 11px; color: #666;
+      text-align: center; line-height: 1.6;
+    }
+    .usage-note strong { color: #1a1a1a; }
+
+    /* ── Inputs ── */
+    label {
+      display: block; font-size: 11px; font-weight: 500;
+      color: #888; text-transform: uppercase;
+      letter-spacing: 0.04em; margin-bottom: 5px;
+    }
+    input[type="email"], input[type="password"] {
+      width: 100%; border: 1px solid #e8e8e8; border-radius: 8px;
+      padding: 9px 12px; font-size: 13px; outline: none;
+      transition: border-color 0.15s; font-family: inherit;
+    }
+    input:focus { border-color: #1a1a1a; }
+    textarea {
+      width: 100%; border: 1px solid #e8e8e8; border-radius: 8px;
+      padding: 10px 12px; font-size: 12px; font-family: inherit;
+      color: #1a1a1a; resize: vertical; outline: none;
+      line-height: 1.6; transition: border-color 0.15s;
+    }
+    textarea:focus { border-color: #1a1a1a; }
+    textarea::placeholder { color: #bbb; }
+    .input-group { display: flex; flex-direction: column; gap: 4px; }
+
+    /* ── Buttons ── */
+    .btn {
+      width: 100%; padding: 10px; background: #1a1a1a;
+      color: #fff; border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-outline {
+      width: 100%; padding: 9px; background: transparent;
+      color: #1a1a1a; border: 1px solid #e0e0e0; border-radius: 8px;
+      font-size: 13px; cursor: pointer; transition: background 0.15s;
+    }
+    .btn-outline:hover { background: #f5f5f5; }
+
+    /* ── JD bar ── */
+    .jd-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; background: #f8f8f8;
+      border-radius: 8px; margin-bottom: 12px;
+      font-size: 12px; color: #555;
+    }
+    .jd-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+    .jd-dot.detected { background: #43a047; }
+    .jd-bar span { flex: 1; }
+    .jd-retry { font-size: 11px; color: #888; cursor: pointer; text-decoration: underline; }
+
+    /* ── Usage bar ── */
+    .usage-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; background: #f8f8f8;
+      border-radius: 8px; margin-bottom: 12px; font-size: 12px;
+    }
+    .usage-text { color: #555; }
+    .upgrade-link {
+      font-size: 11px; font-weight: 500; color: #1a1a1a;
+      cursor: pointer; text-decoration: underline;
+    }
+
+    /* ── Error / paywall ── */
+    .error-box {
+      background: #fff3f3; border: 1px solid #ffcdd2;
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 12px; color: #c62828; margin-top: 12px;
+    }
+    .paywall-box {
+      background: #f8f8f8; border-radius: 10px;
+      padding: 20px 16px; text-align: center;
+      margin-top: 12px;
+    }
+    .paywall-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .paywall-sub { font-size: 12px; color: #666; margin-bottom: 16px; line-height: 1.6; }
+    .paywall-features { text-align: left; margin-bottom: 16px; }
+    .paywall-features li {
+      font-size: 12px; color: #444; padding: 3px 0;
+      list-style: none; padding-left: 16px; position: relative;
+    }
+    .paywall-features li::before {
+      content: '✓'; position: absolute; left: 0; color: #43a047; font-weight: 600;
+    }
+
+    /* ── Result ── */
+    .result-section { margin-bottom: 14px; }
+    .result-label {
+      font-size: 11px; font-weight: 600; color: #888;
+      text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px;
+    }
+    .result-box {
+      background: #f8f8f8; border-radius: 8px; padding: 10px 12px;
+      font-size: 12px; line-height: 1.7; color: #1a1a1a;
+      word-break: break-word;
+    }
+    .result-box ul { padding-left: 16px; margin: 6px 0; }
+    .result-box li { margin-bottom: 6px; }
+    .copy-btn {
+      margin-top: 5px; padding: 5px 12px; background: transparent;
+      border: 1px solid #e0e0e0; border-radius: 6px;
+      font-size: 11px; color: #555; cursor: pointer; transition: all 0.15s;
+    }
+    .copy-btn:hover { background: #f0f0f0; }
+    .copy-btn.copied { color: #2e7d32; border-color: #a5d6a7; }
+    .empty-state {
+      text-align: center; padding: 28px 20px;
+      color: #aaa; font-size: 12px; line-height: 1.8;
+    }
+
+    /* ── Settings ── */
+    .settings-row { margin-bottom: 14px; }
+    .saved-msg { font-size: 11px; color: #2e7d32; margin-top: 5px; display: none; }
+    .section-divider {
+      border: none; border-top: 1px solid #f0f0f0;
+      margin: 16px 0;
+    }
+    .danger-btn {
+      width: 100%; padding: 9px; background: transparent;
+      color: #c62828; border: 1px solid #ffcdd2; border-radius: 8px;
+      font-size: 12px; cursor: pointer; transition: background 0.15s;
+    }
+    .danger-btn:hover { background: #fff3f3; }
+  </style>
+</head>
+<body>
+
+  <!-- ══ AUTH SCREEN (shown when logged out) ══ -->
+  <div id="authScreen">
+    <div class="header">
+      <span class="header-title">Job Apply Optimizer</span>
+      <span class="header-badge">Beta</span>
+    </div>
+    <div class="auth-wrap">
+      <div class="auth-title" id="authTitle">Create your account</div>
+      <div class="auth-sub" id="authSub">Get 2 free tailored resumes + cover letters</div>
+      <div class="usage-note"><strong>Free:</strong> 2 uses &nbsp;·&nbsp; <strong>Pro:</strong> unlimited</div>
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" id="authEmail" placeholder="you@email.com"/>
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="Min 6 characters"/>
+      </div>
+      <button class="btn" id="authBtn">Create account</button>
+      <div class="error-box" id="authError" style="display:none;"></div>
+      <div class="auth-toggle" id="authToggle">
+        Already have an account? <span id="authSwitch">Log in</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MAIN APP (shown when logged in) ══ -->
+  <div id="mainApp" style="display:none;">
+
+    <div class="header">
+      <span class="header-title">Job Apply Optimizer</span>
+      <div class="header-right">
+        <span class="header-badge">Beta</span>
+        <span class="user-chip" id="userChip">...</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="apply">Apply</div>
+      <div class="tab" data-tab="result">Result</div>
+      <div class="tab" data-tab="settings">Settings</div>
+    </div>
+
+    <!-- APPLY TAB -->
+    <div class="panel active" id="panel-apply">
+      <div class="content">
+        <div class="usage-bar">
+          <span class="usage-text" id="usageText">Loading...</span>
+          <span class="upgrade-link" id="upgradeLink" style="display:none;"> Join the waitlist — Pro coming soon</span>
+        </div>
+        <div class="jd-bar">
+          <div class="jd-dot" id="jdDot"></div>
+          <span id="jdStatus">Looking for job description...</span>
+          <span class="jd-retry" id="jdRetry">retry</span>
+        </div>
+        <div class="settings-row">
+          <label>Your resume</label>
+          <textarea id="resumeInput" rows="7"
+            placeholder="Paste your resume here...&#10;&#10;Tip: Save it in Settings so it pre-fills every time.">
+          </textarea>
+        </div>
+        <button class="btn" id="tailorBtn">Tailor my resume + generate cover letter</button>
+        <div class="error-box" id="errorBox" style="display:none;"></div>
+        <div class="paywall-box" id="paywallBox" style="display:none;">
+          <div class="paywall-title">You've used your 2 free tailors</div>
+         <div class="paywall-sub">You've used your 2 free tailors. Pro plan launching soon — join the waitlist and we'll notify you first.</div>
+          <ul class="paywall-features">
+            <li>Unlimited resume tailoring</li>
+            <li>Unlimited cover letters</li>
+            <li>Keywords missing analysis</li>
+            <li>Works on LinkedIn, Indeed, Naukri</li>
+          </ul>
+          <button class="btn" id="paywallUpgradeBtn">Upgrade to Pro — $19/mo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT TAB -->
+    <div class="panel" id="panel-result">
+      <div class="content" id="resultContent">
+        <div class="empty-state">No result yet.<br>Go to Apply and click the button.</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="panel" id="panel-settings">
+      <div class="content">
+        <div class="settings-row">
+          <label>Save your resume</label>
+          <textarea id="savedResume" rows="8"
+            placeholder="Paste your full resume once. It pre-fills on every job page.">
+          </textarea>
+          <button class="btn" id="saveResumeBtn" style="margin-top:10px;">Save resume</button>
+          <div class="saved-msg" id="savedMsg">Saved to your browser.</div>
+        </div>
+        <hr class="section-divider">
+        <button class="danger-btn" id="signOutBtn">Sign out</button>
+      </div>
+    </div>
+
+  </div><!-- end mainApp -->
+
+  <script src="popup.js"></script>
+</body>
+</html>
