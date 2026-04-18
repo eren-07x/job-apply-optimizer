@@ -8,6 +8,9 @@ Chrome extension to automatically tailor your resume based on job descriptions.
 - Generates cover letters
 - Highlights missing keywords
 
+## Screenshot (Example Output)
+![Example Output](screenshots/Screenshot.png)
+
 ## Install (2 mins)
 
 1. Click "Code" → Download ZIP
@@ -23,3 +26,5 @@ Chrome extension to automatically tailor your resume based on job descriptions.
 
 ## Feedback
 Would love honest feedback on output quality.
+
+
